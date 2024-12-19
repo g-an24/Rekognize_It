@@ -1,0 +1,216 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'VisioLex - Web Application for Photo Search and Album'
+
+Resources:
+
+  # Storage Buckets
+  ImagesStorageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "ass-b2"
+
+  WebAppFrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "visiolex"
+
+  # Elastic Search Service Configuration
+  PhotoSearchDomain:
+    Type: AWS::Elasticsearch::Domain
+    Properties:
+      ElasticsearchVersion: "7.1"
+      DomainName: "photos"
+      EBSOptions:
+        EBSEnabled: true
+        VolumeSize: 10
+        VolumeType: "gp2"
+      ElasticsearchClusterConfig:
+        InstanceType: "t2.small.elasticsearch"
+
+  # IAM Role for Serverless Functions
+  ServerlessFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [lambda.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      Policies:
+        - PolicyName: ServerlessExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: ['logs:*', 'es:*', 's3:*']
+                Resource: '*'
+
+  # Lambda Functions for Photo Indexing and Searching
+  PhotoIndexerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: "index-photo"
+      Runtime: "python3.11"
+      Handler: "index.handler"
+      Code:
+        S3Bucket: "lambda243-bucket"
+        S3Key: "index-photo.zip"
+      Role: !GetAtt ServerlessFunctionRole.Arn
+
+  PhotoSearchFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: "search-phtot"
+      Runtime: "python3.11"
+      Handler: "search.handler"
+      Code:
+        S3Bucket: "lambda243-bucket"
+        S3Key: "search-photo.zip"
+      Role: !GetAtt ServerlessFunctionRole.Arn
+
+  # API Gateway for Photo Services
+  PhotoServiceAPI:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: "AI Photo Search"
+      Description: "REST API for managing photo album services"
+
+  # Search API Resource Configuration
+  SearchAPIResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref AI Photo Search
+      ParentId: !GetAtt AI Photo Search.RootResourceId
+      PathPart: search
+
+  # GET and OPTIONS Methods for the Search Resource
+  SearchAPIMethodGET:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref AI Photo Search
+      ResourceId: !Ref SearchAPIResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PhotoSearchFunction.Arn}/invocations"
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseTemplates:
+              application/json: ""
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"          
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: "Empty"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  SearchAPIMethodOPTIONS:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref AI Photo Search
+      ResourceId: !Ref SearchAPIResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SearchPhotosFunction11.Arn}/invocations"
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseTemplates:
+              application/json: ""
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: "Empty"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # /{object} resource
+  ObjectResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref AI Photo Search
+      ParentId: !Ref UploadResource
+      PathPart: '{object}'
+
+  # PUT method on /{object}
+# PUT method on /{object} with MOCK integration
+  ObjectPUTMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref AI Photo Search
+      ResourceId: !Ref ObjectResource
+      HttpMethod: PUT
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseTemplates:
+              application/json: "{}"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: "Empty"
+
+  # OPTIONS method on /{object}
+  ObjectOPTIONSMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref AssignmentPhotoAPII
+      ResourceId: !Ref ObjectResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseTemplates:
+              application/json: ""
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Methods: "'PUT,OPTIONS'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,x-amz-meta-customLabels'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: "Empty"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+Outputs:
+  WebFrontendBucket:
+    Value: !Ref WebAppFrontendBucket
+  StorageBucket:
+    Value: !Ref ImagesStorageBucket
+  SearchServiceEndpoint:
+    Value: !GetAtt PhotoSearchDomain.DomainEndpoint
+  PhotoIndexerLambdaArn:
+    Value: !GetAtt PhotoIndexerFunction.Arn
+  PhotoSearchLambdaArn:
+    Value: !GetAtt PhotoSearchFunction.Arn
+  APIEndpointURL:
+    Value: !Sub "https://${PhotoServiceAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod"

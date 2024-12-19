@@ -1,0 +1,9 @@
+GET /photos/_search
+{
+  "query": {
+    "match": {
+      "objectKey": "dog.jpg"
+    }
+  }
+}
+

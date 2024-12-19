@@ -1,0 +1,37 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - echo Installing python dependencies...
+  pre_build:
+    commands:
+      - echo Preparing the packages...
+  build:
+    commands:
+      - echo Entering the index-photos directory...
+      - cd index-photos
+      - cp -r . ../package
+      - cd ../package
+      - zip -r ../index-photos.zip .
+      - echo Entering the search-photos directory...
+      - cd ../search-photos
+      - cp -r . ../package
+      - cd ../package
+      - zip -r ../search-photos.zip .
+      - cd ..
+      - rm -rf package
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Updating Lambda functions...
+      # Update these commands with the actual names of your AWS Lambda functions.
+      - aws lambda update-function-code --function-name index-photos --zip-file fileb://index-photos.zip
+      - aws lambda update-function-code --function-name search-photos --zip-file fileb://search-photos.zip
+
+# artifacts:
+#   files:
+#     - index-photos.zip
+#     - search-photos.zip

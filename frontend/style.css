@@ -1,0 +1,129 @@
+/* General reset and base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background-image: url('VisioLex.jpg'); /* Adjust path as necessary */
+  background-size: cover;
+  background-position: center;
+  color: #333;
+  font-size: 16px;
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent */
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.heading h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Corrected vertical space between the two cards */
+.card + .card {
+  margin-top: 40px; /* More appropriate space */
+}
+
+.card {
+  max-width: 500px; /* set a max-width for cards if needed */
+  margin-left: auto; /* center the card */
+  margin-right: auto; /* center the card */
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.6); /* Semi-transparent */
+  border: 1px solid #ddd; /* Subtle outline */
+}
+
+input[type="text"],
+input[type="file"] {
+  width: 70%; /* Adjusted width */
+  padding: 10px;
+  margin: 10px auto; /* Center the input */
+  display: block;
+  border: 1px solid #000; /* Updated to black */
+  border-radius: 4px;
+  
+}
+
+
+input[type="text"].form-control {
+  width: calc(70% - 22px); /* Adjust width accounting for padding and border, centered */
+}
+
+input[type="text"].custom-label-input {
+  margin-bottom: 20px;
+}
+
+button.btn, label.btn {
+  background-image: linear-gradient(to bottom right, #007BFF, #0056b3); /* Gradient from lighter to darker blue */
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-size: 14px;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.2); /* Subtle shadow for depth */
+  margin: 10px auto; /* Center the button */
+  display: block;
+  width: auto; /* Ensure the button size is determined by its content */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Transition for background and shadow */
+}
+
+button.btn:hover, label.btn:hover {
+  background-image: linear-gradient(to bottom right, #0056b3, #004080); /* Darker gradient for hover */
+  box-shadow: 0 0 8px rgba(0,0,0,0.3); /* Increased shadow on hover for a 'lifting' effect */
+}
+
+label.btn {
+  background-image: linear-gradient(to bottom right, #28a745, #1c6c30); /* Green gradient for special label buttons */
+  color: white;
+  padding: 10px 20px; /* Padding adjusted for uniformity */
+}
+
+
+.banner-section {
+  background-color: #e9ecef;
+  padding: 20px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.upload_box, .searchbar-input {
+  text-align: center;
+  border-bottom: 1px solid #000; /* Changed to black */
+  padding: 10px;
+}
+
+#img-container {
+  display: flex; /* Use flexbox to align children */
+  justify-content: center; /* Center children horizontally */
+  align-items: center; /* Center children vertically */
+  flex-wrap: wrap; /* Allow items to wrap as needed */
+  gap: 20px; /* Space between the images */
+}
+
+#img-container img {
+  max-width: 400px; /* Set a fixed maximum width for all images */
+  height: auto; /* Maintain aspect ratio */
+  object-fit: cover; /* Cover the area without stretching the image */
+}
+
+
+header h4 {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #000; /* Changed to black */
+  color: #666;
+  margin-bottom: 20px;
+}
